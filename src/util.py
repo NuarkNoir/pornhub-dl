@@ -1,20 +1,20 @@
 from bs4 import BeautifulSoup
-import urllib2, os
+import urllib.request, urllib.error, urllib.parse, os
 class Tools:
 	def __init__(self):
-		if not os.path.exists("%s\MAIN_PH.list" %(os.getenv('APPDATA'))):
+		if not os.path.exists("./MAIN_PH.list"):
 			print("[WELCOME] First Run! ")
-			open("%s\MAIN_PH.list" %(os.getenv('APPDATA')),"w")
-		if not os.path.exists("%s\TBD_PH.list" %(os.getenv('APPDATA'))):
+			open("./MAIN_PH.list","w")
+		if not os.path.exists("./TBD_PH.list"):
 			print("[PREPARING] Files")
-			open("%s\TBD_PH.list" %(os.getenv('APPDATA')),"w")
-		if not os.path.exists("%s\ARCHIVE_PH.list" %(os.getenv('APPDATA'))):
-			print("[DONE] okay Jack we are done ! here we go !")
-			open("%s\ARCHIVE_PH.list" %(os.getenv('APPDATA')),"w")
+			open("./TBD_PH.list","w")
+		if not os.path.exists("./ARCHIVE_PH.list"):
+			print("[DONE] okay we are done!")
+			open("./ARCHIVE_PH.list","w")
 		
 	def find_link(self,file_path,link):
 		# this will check if the given link is there in the provided file link
-		file_object = open(file_path,'rb')
+		file_object = open(file_path,'r')
 		data = file_object.read()
 		data = data.split()
 		file_object.close()
@@ -26,43 +26,33 @@ class Tools:
 	def append_link(self,file_path,link):
 		#this will add a new link to the provided file at the end of the file 
 		try:
-			file_object = open(file_path,'rb')
-			data = file_object.read()
-			data += "%s "%(str(link))
-			file_object.close()
-			file_object = open(file_path,'wb')
-			file_object.write(data)
-			file_object.close()
+			with open(file_path,'r') as file_object:
+				data = file_object.read()
+				data += f"\n{str(link)}"
+			with open(file_path,'w') as file_object:
+				file_object.write(data)
 			del file_object, data
 			return True
-		except:
+		except Exception as e:
+			print("utils.py; 26;", ", ".join(e.args))
 			return False
 
 	def remove_link(self,file_path,link):
 		try:
-			file_object = open(file_path,'rb')
-			data = file_object.read()
-			data = data.split()
-			data.remove(link)
-			data = ' '.join(data)
-			data += " "
-			file_object.close()
-			file_object = open(file_path,'wb')
-			file_object.write(data)
-			file_object.close()
-			del data, file_object
+			data = None
+			with open(file_path,'r') as file_object:
+				data = file_object.read()
+				data = data.split()
+				data.remove(link)
+				with open(file_path,'w') as file_object:
+					data = '\n'.join(data)
+					file_object.write(data)
 			return True
-		except:
+		except Exception as e:
+			print("utils.py; 40;", ", ".join(e.args))
 			return False
 				
 	def get_me_link(self,file_path):
-		file_object = open(file_path,'r')
-		data = file_object.read()
-		file_object.close()
-		del file_object
-		if not data:
-			return '0'
-		else:
-			d = data.split()
-			del data
-			return d[0]
+		with open(file_path,'r') as file_object:
+			data = file_object.read()
+			return '0' if not data else data.split()[0]
